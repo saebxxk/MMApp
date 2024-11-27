@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 
 // SVG 파일 임포트
-import LocationIcon from '../icons/location.svg';
+{/*import LocationIcon from '../icons/location.svg';
 import XIcon from '../icons/x.svg';
-import StarIcon from '../icons/star.svg'; // 즐겨찾기 아이콘
+import StarIcon from '../icons/star.svg'; // 즐겨찾기 아이콘 */}
 
 const initialRecentRecords = [
   { id: '1', station: '서울역', code: '410' },
@@ -47,6 +47,10 @@ const SearchScreen = () => {
     }
   };
 
+  const removeFromFavorites = (id) => {
+    setFavoriteStations((prev) => prev.filter((item) => item.id !== id));
+  }; // 즐겨찾기 아이콘 클릭시 즐겨찾기 해제
+
   const clearAllRecords = () => {
     if (activeTab === 'recent') {
       setRecentRecords([]);
@@ -64,15 +68,28 @@ const SearchScreen = () => {
     <View style={styles.stationItem}>
       <View style={styles.stationInfo}>
         {activeTab === 'recent' ? (
-          <LocationIcon width={40} height={40} style={styles.icon} />
+          <Image
+            source={require('../icons/location_on.png')}
+            style={styles.icon}
+          />
         ) : (
-          <StarIcon width={29} height={27} style={styles.icon} />
+          <TouchableOpacity
+            onPress={() => removeFromFavorites(item.id)} // 즐겨찾기 해제
+          >
+          <Image
+            source={require('../icons/staricon.png')}
+            style={styles.icon}
+          />
+        </TouchableOpacity>
         )}
         <Text style={styles.stationCode}>{item.code}</Text>
         <Text style={styles.stationName}>{item.station}</Text>
       </View>
       <TouchableOpacity style={styles.deleteIcon} onPress={() => removeStation(item.id)}>
-        <XIcon width={16} height={16} />
+      <Image
+          source={require('../icons/X.png')}
+          style={{ width: 16, height: 16 }}
+        />
       </TouchableOpacity>
     </View>
   );

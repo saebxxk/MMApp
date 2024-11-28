@@ -9,10 +9,6 @@ import {
   Image,
 } from 'react-native';
 
-// SVG 파일 임포트
-{/*import LocationIcon from '../icons/location.svg';
-import XIcon from '../icons/x.svg';
-import StarIcon from '../icons/star.svg'; // 즐겨찾기 아이콘 */}
 
 const initialRecentRecords = [
   { id: '1', station: '서울역', code: '410' },
@@ -116,9 +112,9 @@ const SearchScreen = () => {
           <Text
             style={[
               styles.tabText,
-              {
-                color: activeTab === 'recent' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.3)',
-              },
+              
+                activeTab === 'recent' ? styles.activeTabText : styles.inactiveTabText,
+              
             ]}
           >
             최근 기록
@@ -131,9 +127,7 @@ const SearchScreen = () => {
           <Text
             style={[
               styles.tabText,
-              {
-                color: activeTab === 'favorites' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0.3)',
-              },
+              activeTab === 'favorites' ? styles.activeTabText : styles.inactiveTabText,
             ]}
           >
             즐겨찾기
@@ -166,18 +160,23 @@ const SearchScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
+    padding: 0,
+    width: '100%',
+    backgroundColor: '#ffffff',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
     backgroundColor: '#fff',
-    borderRadius: 9999,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#ccc',
     paddingHorizontal: 10,
+    width: 375, // 검색창 너비
+    height: 40, // 검색창 높이
+    alignSelf: 'center', // 부모 뷰에서 가로로 중앙 정렬
+    marginTop: 10, // 검색창 위쪽 여백 추가
   },
   searchInput: {
     flex: 1,
@@ -197,12 +196,13 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    height: 50,
+    height: 54,
+    width: '100%',
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    overflow: 'hidden',
+    backgroundColor: '#F7F7F7',
+    alignItems: 'stretch',
+    
+    
   },
   tabSection: {
     flex: 1,
@@ -213,6 +213,12 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  activeTabText: {
+    color: 'rgba(0, 0, 0, 0.6)', // 활성화된 탭 글씨 색상
+  },
+  inactiveTabText: {
+    color: 'rgba(0, 0, 0, 0.3)',
   },
   banner: {
     alignSelf: 'center',

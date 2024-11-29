@@ -10,50 +10,66 @@ import {
   Image,
 } from 'react-native';
 
-// SVG Icons
-//import ArrowBackIcon from '../icons/arrow_back.svg';
-//import ExchangeIcon from '../icons/exchange.svg';
-//import EmptyStarIcon from '../icons/emptystar.svg';
-//import StarIcon from '../icons/star.svg';
-//import ClearIcon from '../icons/x.svg';
-//import ArrowDropDownIcon from '../icons/arrow_drop_down.svg';
+// 타입별 색상 매핑
+const stepColors = {
+  승차: '#FFC000',
+  환승: '#F7F7F7',
+  하차: '#92D050',
+};
+
+// 타입별 테두리 색상 매핑
+const stepBorderColors = {
+  승차: '#FFFFFF',
+  환승: 'rgba(0, 0, 0, 0.4)',
+  하차: '#FFFFFF',
+};
+
+// 기본 색상 설정 (해딩 타입 없을 때 사용)
+const defaultColor = 'transparent';
+
 // PNG 아이콘 파일 import
 const ArrowBackIcon = require('../icons/arrow_back.png');
 const ExchangeIcon = require('../icons/exchange.png');
-const emptyStarIcon = require('../icons/emptystaricon.png');
+const EmptyStarIcon = require('../icons/emptystaricon.png');
 const StarIcon = require('../icons/staricon.png');
-const ClearIcon = require('../icons/x.png');
+const ClearIcon = require('../icons/X.png');
 const ArrowDropDownIcon = require('../icons/arrow_drop_down.png');
 
+// 목 데이터1
 const initialMockData = [
   {
     id: '1',
-    time: '14분',
-    cost: '1250원',
-    transfers: 1,
-    isFavorite: false,
+    time: '14분', // 전체 소요 시간
+    cost: '1250원', // 비용
+    transfers: 1, // 환승 횟수
+    isFavorite: false, // 즐겨찾기 여부
     steps: [
-      { type: '승차', station: '620', details: '3개 역 이동 | 8분 소요', color: '#FFC000', duration: 8 },
-      { type: '환승', station: '601', details: '2개 역 이동 | 6분 소요', color: '#F7F7F7', duration: 6 },
-      { type: '하차', station: '303', details: '', color: '#92D050', duration: 0 },
+      { type: '승차', station: '620', details: '3개 역 이동 | 8분 소요', duration: 8 },
+      { type: '환승', station: '601', details: '2개 역 이동 | 6분 소요', duration: 6 },
+      { type: '하차', station: '303', details: '', duration: 0 },
     ],
   },
 ];
 
 const SearchResult = () => {
+  // 출발역, 도착역 상태
   const [departureStation, setDepartureStation] = useState('');
   const [arrivalStation, setArrivalStation] = useState('');
+  // 정렬 옵션, 모달 상태
   const [sortOption, setSortOption] = useState('최소 시간순');
   const [isSortModalVisible, setSortModalVisible] = useState(false);
+  // 데이터 상태, 즐겨찾기 여부
   const [mockData, setMockData] = useState(initialMockData);
   const [isSearchFavorite, setIsSearchFavorite] = useState(false);
 
+  // 출발역 <-> 도착역 교환
   const exchangeStations = () => {
     const temp = departureStation;
     setDepartureStation(arrivalStation);
     setArrivalStation(temp);
   };
 
+  //즐겨찾기 토글
   const toggleFavorite = (id) => {
     setMockData((prevData) =>
       prevData.map((item) =>
@@ -62,21 +78,29 @@ const SearchResult = () => {
     );
   };
 
+  // 출발역 초기화
   const clearDeparture = () => setDepartureStation('');
+  // 도착역 초기화
   const clearArrival = () => setArrivalStation('');
 
+  // 정렬 모달 열기/ 닫기
   const openSortModal = () => setSortModalVisible(true);
+  
   const closeSortModal = () => setSortModalVisible(false);
 
+  // 정렬 옵션 처리
   const handleSortOption = (option) => {
     setSortOption(option);
+
     if (option === '최소 시간순') {
+      // 시간순 정렬
       setMockData((prevData) =>
         [...prevData].sort(
           (a, b) => parseInt(a.time.replace('분', '')) - parseInt(b.time.replace('분', ''))
         )
       );
     } else if (option === '최소 비용순') {
+      // 비용순 정렬
       setMockData((prevData) =>
         [...prevData].sort(
           (a, b) => parseInt(a.cost.replace('원', '')) - parseInt(b.cost.replace('원', ''))
@@ -85,42 +109,41 @@ const SearchResult = () => {
     }
     closeSortModal();
   };
+
+  // 그래프 렌더링
   const renderGraph = (steps) => {
-    const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0); // 전체 소요 시간 계산
-    let cumulativeWidth = 0; // 누적 너비를 추적
+    const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
+    let cumulativeWidth = 0; // 누적 너비 추적
     const graphWidth = 368; // 그래프 전체 너비 고정
 
-  
     return (
       <View style={styles.graphContainer}>
         <View style={styles.graph}>
           {steps.map((step, index) => {
-            const segmentWidth = (step.duration / totalDuration) * graphWidth; // 소요 시간 비율에 따른 너비 계산
-            const circlePosition = cumulativeWidth; // 동그라미의 시작 위치
+            const segmentWidth = (step.duration / totalDuration) * graphWidth; // 구간 비율에 따른 너비 계산
+            const circlePosition = cumulativeWidth; // 써클 시작 위치
             cumulativeWidth += segmentWidth; // 누적 너비 업데이트
-            
-  
+
+            const color = stepColors[step.type] || defaultColor; // 동적 배경색
+            const borderColor = stepBorderColors[step.type] || defaultColor; // 동적 테두리 색상
+
             return (
               <React.Fragment key={index}>
-                {/* Step Line */}
+                {/* 선 렌더링 */}
                 {index < steps.length - 1 && (
                   <View
                     style={[
                       styles.graphLine,
-                      {
-                        width: segmentWidth, // 막대 비율에 따라 길이 설정
-                        backgroundColor: step.color, // 현재 구간 색상 적용
-                        left: circlePosition, // 막대 시작 위치 설정
-                      },
+                      { width: segmentWidth, backgroundColor: color, left: circlePosition },
                     ]}
                   />
                 )}
-  
-                {/* Step Circle */}
+                {/* 써클 렌더링*/}
                 <View
                   style={[
+                    styles.commonCircle,
                     styles.graphCircle,
-                    { backgroundColor: step.color, left: circlePosition - 15  }, // 동적 색상과 위치
+                    { backgroundColor: color, borderColor: borderColor, left: circlePosition - 15 },
                   ]}
                 >
                   <Text style={styles.graphText}>{step.type}</Text>
@@ -132,14 +155,12 @@ const SearchResult = () => {
       </View>
     );
   };
-  
 
-
-  
-
+  // 결과 카드 렌더링
   const renderResult = ({ item }) => (
     <View style={styles.resultCard}>
       <View style={styles.header}>
+        {/* 소요 시간, 환승 정보 */}
         <View style={styles.timeContainer}>
           <Text style={styles.label}>소요시간</Text>
           <Text style={styles.time}>{item.time}</Text>
@@ -147,33 +168,48 @@ const SearchResult = () => {
         <Text style={styles.details}>
           환승 {item.transfers}번 | {item.cost}
         </Text>
+
+        {/* 즐겨찾기 버튼*/}
         <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.bookmark}>
           {item.isFavorite ? (
-            <Image source={StarIcon} width={20} height={20} />
+            <Image source={StarIcon} style={styles.icon} />
           ) : (
-            <Image source={EmptyStarIcon} width={20} height={20} />
+            <Image source={EmptyStarIcon} style={styles.icon} />
           )}
           <Text style={styles.bookmarkText}>즐겨찾기</Text>
         </TouchableOpacity>
       </View>
+      {/* 그래프 렌더링*/}
       {renderGraph(item.steps)}
+      {/* 스텝 리스트 렌더링*/}
       <View style={styles.steps}>
-        {item.steps.map((step, index) => (
-          <View key={index} style={styles.stepContainer}>
-            <View style={styles.step}>
-              <View style={[styles.circle, { backgroundColor: step.color }]}>
-                <Text style={styles.circleText}>{step.type}</Text>
+        {item.steps.map((step, index) => {
+          const color = stepColors[step.type] || defaultColor; // 동적 배경색
+          const borderColor = stepBorderColors[step.type] || defaultColor; // 동적 테두리 배경색
+
+          return (
+            <View key={index} style={styles.stepContainer}>
+              <View style={styles.step}>
+                <View
+                  style={[
+                    styles.commonCircle,
+                    styles.circle,
+                    { backgroundColor: color, borderColor: borderColor },
+                  ]}
+                >
+                  <Text style={styles.circleText}>{step.type}</Text>
+                </View>
+                <View style={styles.stepTextContainer}>
+                  <Text style={styles.stepStation}>
+                    {step.station} {step.type}
+                  </Text>
+                  {step.details ? <Text style={styles.stepDetails}>{step.details}</Text> : null}
+                </View>
               </View>
-              <View style={styles.stepTextContainer}>
-                <Text style={styles.stepStation}>
-                  {step.station} {step.type}
-                </Text>
-                {step.details ? <Text style={styles.stepDetails}>{step.details}</Text> : null}
-              </View>
+              {index < item.steps.length - 1 && <View style={styles.line} />}
             </View>
-            {index < item.steps.length - 1 && <View style={styles.line} />}
-          </View>
-        ))}
+          );
+        })}
       </View>
     </View>
   );
@@ -183,7 +219,7 @@ const SearchResult = () => {
       <View style={styles.searchSection}>
         <View style={styles.row}>
           <TouchableOpacity style={styles.iconContainer}>
-            <Image source={ArrowBackIcon} width={20} height={20} />
+            <Image source={ArrowBackIcon} style={styles.icon} />
           </TouchableOpacity>
           <View style={styles.searchBox}>
             <TextInput
@@ -197,7 +233,7 @@ const SearchResult = () => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.iconContainer} onPress={exchangeStations}>
-            <Image source={ExchangeIcon} width={20} height={20} />
+            <Image source={ExchangeIcon} style={styles.icon} />
           </TouchableOpacity>
         </View>
 
@@ -218,27 +254,37 @@ const SearchResult = () => {
             style={styles.iconContainer}
             onPress={() => setIsSearchFavorite(!isSearchFavorite)}
           >
-            {isSearchFavorite ? (
-              <Image source={StarIcon} width={20} height={20} />
-            ) : (
-              <Image source={EmptyStarIcon} width={20} height={20} />
-            )}
+            <Image
+              source={isSearchFavorite ? StarIcon : EmptyStarIcon}
+              style={styles.icon}
+            />
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* 정렬 섹션 */}
       <View style={styles.sortSection}>
         <Text style={styles.sortText}>{sortOption}</Text>
         <TouchableOpacity onPress={openSortModal} style={styles.sortIcon}>
-          <ArrowDropDownIcon width={20} height={20} />
+          <Image source={ArrowDropDownIcon} style={styles.icon} />
         </TouchableOpacity>
       </View>
 
+      {/* 결과 목록 */}
+      <FlatList
+        data={mockData}
+        keyExtractor={(item) => item.id}
+        renderItem={renderResult}
+        contentContainerStyle={styles.list}
+      />
+    
+
+      {/* 정렬 모달 */}
       <Modal
-        visible={isSortModalVisible}
+        visible= {isSortModalVisible}
         transparent
-        animationType="slide"
-        onRequestClose={closeSortModal}
+        animationType="slide" //애니메이션 효과
+        onRequestClose={closeSortModal} // 뒤로가기 버튼 시 닫기
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -258,131 +304,47 @@ const SearchResult = () => {
         </View>
       </Modal>
 
-      <FlatList
-        data={mockData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderResult}
-        contentContainerStyle={styles.list}
-      />
+      
     </View>
   );
 };
 
-
-
-  
-  
-  
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: '#F7F7F7',
-    padding: 0,
-    margin: 0,
+  container: { 
+    flex: 1, // 화며 전체 차지
+    backgroundColor: '#F7F7F7' 
   },
-  searchSection: {
-    backgroundColor: '#F7F7F7',
-    padding: 10,
+  // 검색 세션
+  searchSection: { 
+    padding: 10, // 내부 여백
+    backgroundColor: '#F7F7F7' //배경색
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+  // 행 스타일 (출발역/도착역 입력과 버튼이 배치된 행)
+  row: { 
+    flexDirection: 'row', // 가로 방향 배치
+    alignItems: 'center', // 수직 중앙 정렬
+    justifyContent: 'center', // 가로 중앙 정렬
+    marginBottom: 10, // 아래쪽 여백
+    width: '100%', // 행이 화면 전체 너비 차지
+    
+    marginBottom: 10 // 아래쪽 여백
   },
+  // 입력창 스타일
   searchBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 9999,
-    height: 40,
+    //flex: 1, // 가로 공간 채우기
     width: 305,
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
+    height: 40, // 고정 높이
+    backgroundColor: '#FFFFFF',
+    borderRadius: 9999, // 모서리 둥글게
+    paddingHorizontal: 15, // 양쪽 내부 여백
+    flexDirection: 'row', // 아이콘, 텍스트 입력 가로로 배치
+    alignItems: 'center', // 내부 요소 수직 중앙 정렬
     elevation: 1,
   },
-  input: {
-    flex: 1,
-    fontSize: 14,
-  },
-  iconContainer: {
-    width: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sortSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    height: 40,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 15,
-  },
-  sortText: {
-    fontSize: 14,
-    color: '#000',
-  },
-  sortIcon: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 20,
-    elevation: 5,
-  },
-  modalOption: {
-    padding: 10,
-  },
-  modalOptionText: {
-    fontSize: 14,
-    color: '#000',
-  },
-  list: {
-    padding: 0,
-    marginTop: 10,
-  },
-  resultCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    width: '100%',
-    padding: 10,
-    
-  
-    marginBottom: 10,
-    elevation: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  label: {
-    fontSize: 14,
-    color: 'rgba(0, 0, 0, 0.4)',
-    marginBottom: 5,
-  },
-  timeContainer: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    marginRight: 20, // "14분"과 환승 정보 사이 간격 설정
-    
-  },
-  time: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: 'rgba(0, 0, 0, 0.8)',
+  // 입력 필드
+  input: { 
+    flex: 1, // 가로 공간 채우기
+    fontSize: 14 
   },
   bookmark: {
     position: 'absolute',
@@ -392,118 +354,208 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     
   },
-  bookmarkText: {
-    marginLeft: 5,
+  label: {
     fontSize: 14,
     color: 'rgba(0, 0, 0, 0.4)',
+    marginBottom: 5,
   },
-  details: {
-    fontSize: 14,
+  //아이콘 컨테이너 
+  iconContainer: { 
+    width: 20, // 고정 너비
+    justifyContent: 'center', // 수직 중앙 정렬
+    alignItems: 'center', // 수평 중앙 정렬
+    marginHorizontal: 10, // 좌우 간격 추가
+  },
+  // 아이콘 스타일
+  icon: { 
+    width: 20, 
+    height: 20, 
+    resizeMode: 'contain' // 아이콘 비율 유지하며 맞춤
+  },
+  // 정렬 섹션
+  sortSection: {
+    flexDirection: 'row', // 가로 방향 배치
+    alignItems: 'center', // 수직 중앙 정렬
+    justifyContent: 'flex-end', // 오른쪽 정렬
+    padding: 10, // 내부 여백
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 15,
+  },
+  // 정렬 텍스트 스타일
+  sortText: { 
+    fontSize: 14, 
+    color: '#000' 
+  },
+  sortIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  // 모달 오버레이 스타일
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    
+  },
+  // 모달 콘텐츠 스타일
+  modalContent: {
+    width: '80%', // 화면 너비 80%
+    padding: 20, // 내부 여백
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+  },
+  // 모달 옵션 스타일
+  modalOption: { 
+    padding: 10 
+  },
+  modalOptionText: { 
+    fontSize: 14, 
+    color: '#000' 
+  },
+  // 결과 목록 스타일 
+  list: { 
+    paddingHorizontal: 0, // 좌우 여백 0
+    marginTop: 10, // 상단 여백
+  },
+  // 결과 카드 스타일
+  resultCard: {
+    backgroundColor: '#FFFFFF',
+    padding: 10, // 내부 여백
+    marginBottom: 10, // 하단 여백
+    borderRadius: 8, 
+  },
+  // 헤더 스타일 ( 소요 시간, 즐겨찾기 영역)
+  header: { 
+    flexDirection: 'row', // 가로 방향 배치 
+    justifyContent: 'space-between', // 양쪽 정렬
+    alignItems: 'center', // 수직 중앙 정렬
+    marginBottom: 10,
+  },
+  // 소요 시간 컨테이너
+  timeContainer: { 
+    flexDirection: 'column', 
+    alignItems: 'flex-start', //왼쪽 정렬
+    justifyContent: 'center',
+    marginRight: 20, // "14분"과 환승 정보 사이 간격 설정
+  },
+  // 소요 시간 텍스트 스타일
+  time: { 
+    fontSize: 24, 
+    fontWeight: '600', // 굵은 글씨
+    color: 'rgba(0, 0, 0, 0.8)',
+  },
+  // 세부 정보 텍스트 스타일
+  details: { 
+    fontSize: 14, 
     color: 'rgba(0, 0, 0, 0.4)',
     flex: 1,
     textAlign: 'left',
-    
     alignSelf: 'flex-end',
+  },
+  // 즐겨찾기 버튼 스타일
+  bookmark: {
+    flexDirection: 'row', // 아이콘과 텍스트를 가로로 배치
+    alignItems: 'center', // 수직 중앙 정렬
+  },
+  // 즐겨찾기 텍스트 스타일
+  bookmarkText: {
+    marginLeft: 5, // 아이콘과의 간격
+    fontSize: 14, // 텍스트 크기
+    color: 'rgba(0, 0, 0, 0.4)', // 연한 검정색
+  },
+  // 스텝 리스트 섹션 스타일
+  steps: { 
+    marginTop: 10 
+  },
+  // 개별 스텝 컨테이너 스타일
+  stepContainer: { 
     
+    marginBottom: 0 
   },
-  steps: {
-    marginTop: 10,
-  },
-  step: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  circle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: 10,
-    borderColor: '#FFFFFF',
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  circleText: {
-    fontSize: 10,
-    color: 'rgba(0, 0, 0, 0.4)',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  line: {
-    position: 'absolute',
-    top: 30, // 동그라미 중심
-    left: 15, // 동그라미 중심의 x축 위치
-    height: 50, // 두 동그라미 간 거리
-    width: 0, // 점선은 border로 처리
-    borderLeftWidth: 2, // 점선 두께
-    borderColor: 'rgba(0, 0, 0, 0.4)', // 점선 색상
-    borderStyle: 'dashed',
-    zIndex: -1, // 동그라미 뒤로 배치
+  // 개별 스텝 스타일
+  step: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
   },
   
-  stepContainer: {
-    alignItems: 'center',
-    marginBottom: 20, // 동그라미 간 거리
+  stepTextContainer: { 
+    flex: 1 
   },
-  stepTextContainer: {
-    flex: 1,
+  // 스텝 역 이름 스타일
+  stepStation: { 
+    fontSize: 14, 
+    color: '#000' 
   },
-  stepStation: {
-    fontSize: 14,
-    color: 'rgba(0, 0, 0, 0.6)',
+  // 스텝 세부 정보 텍스트 스타일
+  stepDetails: { 
+    fontSize: 12, 
+    color: 'rgba(0, 0, 0, 0.4)' 
   },
-  stepDetails: {
-    fontSize: 12,
-    color: 'rgba(0, 0, 0, 0.4)',
+  // 점선 스타일 (스텝 사이 연결)
+  line: {
+    height: 50, // 점선 길이
+    borderLeftWidth: 2, // 점선 두께
+    borderColor: 'rgba(0, 0, 0, 0.4)',
+    borderStyle: 'dashed', // 점선 스타일
+    marginLeft: 15,
   },
-  graphContainer: {
+  // 그래프 컨테이너 스타일
+  graphContainer: { 
+    height: 36, 
     width: '100%',
     maxWidth: 368, // 그래프 너비 고정
-    height: 36, // 그래프 높이 고정
-    position: 'relative',
-    alignSelf: 'center', // 화면 가운데 정렬
-    borderRadius: 8, // 그래프 모서리 둥글게
-    
-    
-    
+    justifyContent: 'center', // 수직 중앙 정렬
+    alignSelf: 'center',
+    position: 'relative', // 화면 가운데 정렬
   },
-  graph: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative', // 동그라미와 막대 배치 조정
-    width: '100%',
+  // 그래프 스타일 (그래프 전체 영역)
+  graph: { 
+    flexDirection: 'row', // 가로 방향 배치
+    alignItems: 'center', // 수직 중앙 정렬
     height: '100%',
+    width: '100%', // 부모 컨테이너 높이에 맞춤
   },
-  graphCircle: {
-    width: 36, // 원 크기
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FFD700', // 기본 원 배경색 (필요 시 동적으로 변경 가능)
+  // 공통 원 스타일
+  commonCircle: {
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute', // 정확한 위치 설정
-    zIndex: 2, // 동그라미를 선 위에 표시
-    borderColor: '#FFFFFF',
     borderWidth: 1,
-    
   },
-  graphLine: {
-    
-    flex: 1,
-    height: 20, //그래프 두께
-    position: 'absolute', // 막대의 위치를 동적으로 배치
-   
+  // 스텝 원 스타일
+  circle: { 
+    width: 30, 
+    height: 30, 
+    borderRadius: 15, 
+    marginRight: 10 
   },
-  graphText: {
-    fontSize: 14,
-    color: 'rgba(0, 0, 0, 0.4)',
-    fontWeight: 'bold',
+  circleText: { 
+    fontSize: 12, // 텍스트 크기
+    color: 'rgba(0, 0, 0, 0.4)', // 텍스트 색상
+    textAlign: 'center', // 텍스트 중앙 정렬
+    //fontWeight: 'bold', // 텍스트 굵기
   },
-
+  
+   // 그래프 원 스타일
+  graphCircle: { 
+    width: 36, 
+    height: 36, 
+    borderRadius: 18, 
+    position: 'absolute' // 그래프 상의 위치 조정
+  },
+  graphText: { 
+    fontSize: 14, 
+    color: 'rgba(0, 0, 0, 0.6)', 
+    textAlign: 'center' 
+  },
+  graphLine: { 
+    height: 20, 
+    position: 'absolute' 
+  },
 });
 
 export default SearchResult;
+
 
 
   

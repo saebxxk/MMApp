@@ -80,14 +80,17 @@ const SearchResult = () => {
   const renderGraph = (steps) => {
     const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0); // 전체 소요 시간 계산
     let cumulativeWidth = 0; // 누적 너비를 추적
+    const graphWidth = 368; // 그래프 전체 너비 고정
+
   
     return (
       <View style={styles.graphContainer}>
         <View style={styles.graph}>
           {steps.map((step, index) => {
-            const segmentWidth = (step.duration / totalDuration) * 368; // 소요 시간 비율에 따른 너비 계산
+            const segmentWidth = (step.duration / totalDuration) * graphWidth; // 소요 시간 비율에 따른 너비 계산
             const circlePosition = cumulativeWidth; // 동그라미의 시작 위치
             cumulativeWidth += segmentWidth; // 누적 너비 업데이트
+            
   
             return (
               <React.Fragment key={index}>
@@ -109,7 +112,7 @@ const SearchResult = () => {
                 <View
                   style={[
                     styles.graphCircle,
-                    { backgroundColor: step.color, left: circlePosition }, // 동적 색상과 위치
+                    { backgroundColor: step.color, left: circlePosition - 15  }, // 동적 색상과 위치
                   ]}
                 >
                   <Text style={styles.graphText}>{step.type}</Text>
@@ -266,7 +269,10 @@ const SearchResult = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
     backgroundColor: '#F7F7F7',
+    padding: 0,
+    margin: 0,
   },
   searchSection: {
     backgroundColor: '#F7F7F7',
@@ -334,12 +340,16 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   list: {
-    padding: 10,
+    padding: 0,
+    marginTop: 10,
   },
   resultCard: {
+    flex: 1,
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 15,
+    width: '100%',
+    padding: 10,
+    
+  
     marginBottom: 10,
     elevation: 2,
   },
@@ -440,11 +450,13 @@ const styles = StyleSheet.create({
     color: 'rgba(0, 0, 0, 0.4)',
   },
   graphContainer: {
-    width: 368, // 그래프 너비 고정
+    width: '100%',
+    maxWidth: 368, // 그래프 너비 고정
     height: 36, // 그래프 높이 고정
     position: 'relative',
     alignSelf: 'center', // 화면 가운데 정렬
     borderRadius: 8, // 그래프 모서리 둥글게
+    
     
     
   },
@@ -456,25 +468,27 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   graphCircle: {
-    width: 30, // 원 크기
-    height: 30,
-    borderRadius: 15,
+    width: 36, // 원 크기
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#FFD700', // 기본 원 배경색 (필요 시 동적으로 변경 가능)
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute', // 정확한 위치 설정
-    zIndex: 1, // 동그라미를 선 위에 표시
+    zIndex: 2, // 동그라미를 선 위에 표시
+    borderColor: '#FFFFFF',
+    borderWidth: 1,
     
   },
   graphLine: {
     
-    
+    flex: 1,
     height: 8, //그래프 두께
     position: 'absolute', // 막대의 위치를 동적으로 배치
    
   },
   graphText: {
-    fontSize: 10,
+    fontSize: 14,
     color: 'rgba(0, 0, 0, 0.4)',
     fontWeight: 'bold',
   },

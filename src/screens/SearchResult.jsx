@@ -7,15 +7,23 @@ import {
   Text,
   Modal,
   FlatList,
+  Image,
 } from 'react-native';
 
 // SVG Icons
-import ArrowBackIcon from '../icons/arrow_back.svg';
-import ExchangeIcon from '../icons/exchange.svg';
-import EmptyStarIcon from '../icons/emptystar.svg';
-import StarIcon from '../icons/star.svg';
-import ClearIcon from '../icons/x.svg';
-import ArrowDropDownIcon from '../icons/arrow_drop_down.svg';
+//import ArrowBackIcon from '../icons/arrow_back.svg';
+//import ExchangeIcon from '../icons/exchange.svg';
+//import EmptyStarIcon from '../icons/emptystar.svg';
+//import StarIcon from '../icons/star.svg';
+//import ClearIcon from '../icons/x.svg';
+//import ArrowDropDownIcon from '../icons/arrow_drop_down.svg';
+// PNG 아이콘 파일 import
+const ArrowBackIcon = require('../icons/arrow_back.png');
+const ExchangeIcon = require('../icons/exchange.png');
+const emptyStarIcon = require('../icons/emptystaricon.png');
+const StarIcon = require('../icons/staricon.png');
+const ClearIcon = require('../icons/x.png');
+const ArrowDropDownIcon = require('../icons/arrow_drop_down.png');
 
 const initialMockData = [
   {
@@ -141,9 +149,9 @@ const SearchResult = () => {
         </Text>
         <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={styles.bookmark}>
           {item.isFavorite ? (
-            <StarIcon width={20} height={20} />
+            <Image source={StarIcon} width={20} height={20} />
           ) : (
-            <EmptyStarIcon width={20} height={20} />
+            <Image source={EmptyStarIcon} width={20} height={20} />
           )}
           <Text style={styles.bookmarkText}>즐겨찾기</Text>
         </TouchableOpacity>
@@ -175,7 +183,7 @@ const SearchResult = () => {
       <View style={styles.searchSection}>
         <View style={styles.row}>
           <TouchableOpacity style={styles.iconContainer}>
-            <ArrowBackIcon width={20} height={20} />
+            <Image source={ArrowBackIcon} width={20} height={20} />
           </TouchableOpacity>
           <View style={styles.searchBox}>
             <TextInput
@@ -185,11 +193,11 @@ const SearchResult = () => {
               onChangeText={setDepartureStation}
             />
             <TouchableOpacity onPress={clearDeparture}>
-              <ClearIcon width={16} height={16} />
+              <Image source={ClearIcon} width={16} height={16} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.iconContainer} onPress={exchangeStations}>
-            <ExchangeIcon width={20} height={20} />
+            <Image source={ExchangeIcon} width={20} height={20} />
           </TouchableOpacity>
         </View>
 
@@ -203,7 +211,7 @@ const SearchResult = () => {
               onChangeText={setArrivalStation}
             />
             <TouchableOpacity onPress={clearArrival}>
-              <ClearIcon width={16} height={16} />
+              <Image source={ClearIcon} width={16} height={16} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity
@@ -211,9 +219,9 @@ const SearchResult = () => {
             onPress={() => setIsSearchFavorite(!isSearchFavorite)}
           >
             {isSearchFavorite ? (
-              <StarIcon width={20} height={20} />
+              <Image source={StarIcon} width={20} height={20} />
             ) : (
-              <EmptyStarIcon width={20} height={20} />
+              <Image source={EmptyStarIcon} width={20} height={20} />
             )}
           </TouchableOpacity>
         </View>
@@ -483,7 +491,7 @@ const styles = StyleSheet.create({
   graphLine: {
     
     flex: 1,
-    height: 8, //그래프 두께
+    height: 20, //그래프 두께
     position: 'absolute', // 막대의 위치를 동적으로 배치
    
   },

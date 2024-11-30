@@ -124,8 +124,29 @@ const SearchResult = () => {
             const circlePosition = cumulativeWidth; // 써클 시작 위치
             cumulativeWidth += segmentWidth; // 누적 너비 업데이트
 
+            // 다음 구간의 상태 확인
+          const nextStep = steps[index + 1];
+          
+
+          // 색상 결정: 다음 구간이 '하차'라면 하차색 적용
+          {/*const color =
+            nextStep?.type === '하차' || isLastSegment
+              ? stepColors['하차']
+              : stepColors[step.type] || defaultColor;
+
+          const borderColor =
+            nextStep?.type === '하차' || isLastSegment
+              ? stepBorderColors['하차']
+              : stepBorderColors[step.type] || defaultColor;*/}
+
+
             const color = stepColors[step.type] || defaultColor; // 동적 배경색
             const borderColor = stepBorderColors[step.type] || defaultColor; // 동적 테두리 색상
+            // 선 색상: 다음 구간이 '하차'라면 하차 색상 적용, 아니면 현재 구간 색상 적용
+            const lineColor =
+            nextStep?.type === '하차' ? stepColors['하차'] : stepColors[step.type];
+
+
 
             return (
               <React.Fragment key={index}>
@@ -134,7 +155,7 @@ const SearchResult = () => {
                   <View
                     style={[
                       styles.graphLine,
-                      { width: segmentWidth, backgroundColor: color, left: circlePosition },
+                      { width: segmentWidth, backgroundColor: lineColor, left: circlePosition },
                     ]}
                   />
                 )}

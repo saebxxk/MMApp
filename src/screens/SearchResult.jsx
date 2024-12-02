@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Platform, StatusBar } from 'react-native'; // Platform과 StatusBar 임포트
+
 import {
   View,
   TextInput,
@@ -114,7 +116,7 @@ const SearchResult = () => {
   const renderGraph = (steps) => {
     const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
     let cumulativeWidth = 0; // 누적 너비 추적
-    const graphWidth = 368; // 그래프 전체 너비 고정
+    const graphWidth = 348; // 그래프 전체 너비 고정
 
     return (
       <View style={styles.graphContainer}>
@@ -127,17 +129,6 @@ const SearchResult = () => {
             // 다음 구간의 상태 확인
           const nextStep = steps[index + 1];
           
-
-          // 색상 결정: 다음 구간이 '하차'라면 하차색 적용
-          {/*const color =
-            nextStep?.type === '하차' || isLastSegment
-              ? stepColors['하차']
-              : stepColors[step.type] || defaultColor;
-
-          const borderColor =
-            nextStep?.type === '하차' || isLastSegment
-              ? stepBorderColors['하차']
-              : stepBorderColors[step.type] || defaultColor;*/}
 
 
             const color = stepColors[step.type] || defaultColor; // 동적 배경색
@@ -333,7 +324,9 @@ const SearchResult = () => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, // 화며 전체 차지
-    backgroundColor: '#F7F7F7' 
+    backgroundColor: '#F7F7F7',
+    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 20, // 플랫폼별 marginTop 추가
+    
   },
   // 검색 세션
   searchSection: { 
@@ -525,9 +518,10 @@ const styles = StyleSheet.create({
   graphContainer: { 
     height: 36, 
     width: '100%',
-    maxWidth: 368, // 그래프 너비 고정
+    maxWidth: 348, // 그래프 너비 고정
     justifyContent: 'center', // 수직 중앙 정렬
     alignSelf: 'center',
+    alignItems: 'center', // 수직 중앙 정렬
     position: 'relative', // 화면 가운데 정렬
   },
   // 그래프 스타일 (그래프 전체 영역)
@@ -536,6 +530,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', // 수직 중앙 정렬
     height: '100%',
     width: '100%', // 부모 컨테이너 높이에 맞춤
+    
   },
   // 공통 원 스타일
   commonCircle: {

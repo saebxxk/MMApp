@@ -51,6 +51,20 @@ const initialMockData = [
       { type: '하차', station: '303', details: '', duration: 0 },
     ],
   },
+  {
+    id: '2',
+    time: '14분', // 전체 소요 시간
+    cost: '1000원', // 비용
+    transfers: 2, // 환승 횟수
+    isFavorite: false, // 즐겨찾기 여부
+    steps: [
+      { type: '승차', station: '620', details: '4개 역 이동 | 10분 소요', duration: 10 },
+      { type: '환승', station: '702', details: '3개 역 이동 | 2분 소요', duration: 2 },
+      { type: '환승', station: '503', details: '2개 역 이동 | 2분 소요', duration: 2 },
+      { type: '하차', station: '303', details: '', duration: 2 },
+    ],
+  },
+  
 ];
 
 const SearchResult = () => {
@@ -114,9 +128,12 @@ const SearchResult = () => {
 
   // 그래프 렌더링
   const renderGraph = (steps) => {
+
+  
+
     const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
     let cumulativeWidth = 0; // 누적 너비 추적
-    const graphWidth = 348; // 그래프 전체 너비 고정
+    const graphWidth = 328; // 그래프 전체 너비 고정
 
     return (
       <View style={styles.graphContainer}>
@@ -230,8 +247,8 @@ const SearchResult = () => {
     <View style={styles.container}>
       <View style={styles.searchSection}>
         <View style={styles.row}>
-          <TouchableOpacity style={styles.iconContainer}>
-            <Image source={ArrowBackIcon} style={styles.icon} />
+        <TouchableOpacity style={styles.iconContainer}>
+           {/*} <Image source={ArrowBackIcon} style={styles.icon} />*/}
           </TouchableOpacity>
           <View style={styles.searchBox}>
             <TextInput
@@ -315,8 +332,13 @@ const SearchResult = () => {
           </View>
         </View>
       </Modal>
+      {/* 뒤로가기 섹션 */}
+    <View style={styles.backSection}>
+      <TouchableOpacity style={styles.backButton}>
+        <Image source={ArrowBackIcon} style={styles.icon} />
+      </TouchableOpacity>
+    </View>
 
-      
     </View>
   );
 };
@@ -518,7 +540,7 @@ const styles = StyleSheet.create({
   graphContainer: { 
     height: 36, 
     width: '100%',
-    maxWidth: 348, // 그래프 너비 고정
+    maxWidth: 328, // 그래프 너비 고정
     justifyContent: 'center', // 수직 중앙 정렬
     alignSelf: 'center',
     alignItems: 'center', // 수직 중앙 정렬
@@ -568,6 +590,24 @@ const styles = StyleSheet.create({
     height: 20, 
     position: 'absolute' 
   },
+  backSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // 왼쪽 정렬
+    padding: 10, // 내부 여백
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 15,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)', // 섹션 위쪽 구분선
+    height: 50, // 정렬 섹션과 동일한 높이
+  },
+  backButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
+
+
 });
 
 export default SearchResult;

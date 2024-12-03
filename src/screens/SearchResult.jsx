@@ -53,15 +53,15 @@ const initialMockData = [
   },
   {
     id: '2',
-    time: '14분', // 전체 소요 시간
+    time: '21분', // 전체 소요 시간
     cost: '1000원', // 비용
     transfers: 2, // 환승 횟수
     isFavorite: false, // 즐겨찾기 여부
     steps: [
       { type: '승차', station: '620', details: '4개 역 이동 | 10분 소요', duration: 10 },
-      { type: '환승', station: '702', details: '3개 역 이동 | 2분 소요', duration: 2 },
-      { type: '환승', station: '503', details: '2개 역 이동 | 2분 소요', duration: 2 },
-      { type: '하차', station: '303', details: '', duration: 2 },
+      { type: '환승', station: '702', details: '3개 역 이동 | 7분 소요', duration: 4 },
+      { type: '환승', station: '503', details: '2개 역 이동 | 7분 소요', duration: 7 },
+      { type: '하차', station: '303', details: '', duration: 0 },
     ],
   },
   
@@ -139,6 +139,7 @@ const SearchResult = () => {
       <View style={styles.graphContainer}>
         <View style={styles.graph}>
           {steps.map((step, index) => {
+            
             const segmentWidth = (step.duration / totalDuration) * graphWidth; // 구간 비율에 따른 너비 계산
             const circlePosition = cumulativeWidth; // 써클 시작 위치
             cumulativeWidth += segmentWidth; // 누적 너비 업데이트
@@ -345,7 +346,7 @@ const SearchResult = () => {
 
 const styles = StyleSheet.create({
   container: { 
-    flex: 1, // 화며 전체 차지
+    flex: 1, // 화면 전체 차지
     backgroundColor: '#F7F7F7',
     marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 20, // 플랫폼별 marginTop 추가
     
